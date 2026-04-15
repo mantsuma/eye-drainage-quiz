@@ -1,11 +1,191 @@
-,
-{q:"眼輪筋が硬くなると起こりやすいのはどれ？", c:["眼精疲労","足のむくみ","腰痛"], a:0},
-{q:"口輪筋の主な作用はどれ？", c:["口唇を閉じる","眼球を外転させる","肩甲骨を挙上する"], a:0},
-{q:"頬筋の主な作用はどれ？", c:["頬を内側へ引く","上腕骨を外旋する","眼球を上転させる"], a:0},
-{q:"大頬骨筋の主な作用はどれ？", c:["口角を上外側へ引く","下顎骨を下制する","頭部を屈曲する"], a:0},
-{q:"胸鎖乳突筋の停止（引っ張られる側）はどれ？", c:["乳様突起","鎖骨","頭頂骨"], a:0},
-{q:"広頚筋の主な作用はどれ？", c:["頸部前面の皮膚を引く","下顎骨を強く挙上する","眼球を外転させる"], a:0},
-{q:"後頭下筋群の役割はどれ？", c:["頭部の安定と微細な運動","咀嚼","呼吸"], a:0},
-{q:"大円筋の起始（固定側）はどれ？", c:["肩甲骨","上腕骨","鎖骨"], a:0},
-{q:"大円筋の停止（引っ張られる側）はどれ？", c:["上腕骨","頭頂骨","胸骨"], a:0},
-{q:"小円筋の主な作用はどれ？", c:["上腕骨を外旋する","上腕骨を内旋する","上腕骨を内転する"], a:0}
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>アイドレクイズ</title>
+<style>
+body{
+  font-family:sans-serif;
+  background:#fff5f7;
+  margin:0;
+  padding:12px;
+}
+.box{
+  background:#fff;
+  border-radius:20px;
+  padding:16px;
+  margin-bottom:16px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.06);
+}
+h1{
+  margin:0 0 16px;
+  font-size:22px;
+}
+#question{
+  font-size:24px;
+  font-weight:700;
+  line-height:1.5;
+  margin-bottom:16px;
+}
+.choice{
+  display:block;
+  width:100%;
+  padding:16px;
+  margin-bottom:12px;
+  border-radius:16px;
+  border:2px solid #ddd;
+  background:#fff;
+  font-size:18px;
+}
+.choice.correct{
+  background:#dff7e7;
+  border-color:#1f9d55;
+}
+.choice.wrong{
+  background:#ffe1e1;
+  border-color:#d93025;
+}
+#result{
+  font-size:20px;
+  font-weight:700;
+  margin-top:8px;
+}
+.next-btn{
+  width:100%;
+  padding:16px;
+  border-radius:16px;
+  border:1px solid #ddd;
+  background:#fff;
+  font-size:22px;
+}
+</style>
+</head>
+<body>
+
+<div class="box">
+  <h1>アイドレクイズ</h1>
+  <div id="question">読み込み中…</div>
+  <div id="choices"></div>
+  <div id="result"></div>
+</div>
+
+<div class="box">
+  <button class="next-btn" onclick="nextQuestion()">次へ</button>
+</div>
+
+<script>
+const quiz = [
+  {
+    q:"アイドレでアプローチする主な流れは？",
+    c:["血流","リンパ","筋肉","神経"],
+    a:1
+  },
+  {
+    q:"目の周りのむくみの原因として最も関係が深いのは？",
+    c:["リンパの滞り","筋肉の肥大","骨格のズレ","皮膚の厚み"],
+    a:0
+  },
+  {
+    q:"顔のリンパが最終的に流れる方向は？",
+    c:["鎖骨","こめかみ","鼻","顎"],
+    a:0
+  },
+  {
+    q:"目の疲れに関係する筋肉は？",
+    c:["眼輪筋","大胸筋","大腿筋","腹直筋"],
+    a:0
+  },
+  {
+    q:"アイドレナージュで避けるべき状態は？",
+    c:["眼科治療中","肩こり","疲労","軽いむくみ"],
+    a:0
+  },
+  {
+    q:"目元ケアで重要なポイントは？",
+    c:["優しい圧","強い圧","速さ","摩擦"],
+    a:0
+  },
+  {
+    q:"リンパの流れを促進する目的は？",
+    c:["老廃物排出","筋肉増強","骨形成","血圧上昇"],
+    a:0
+  },
+  {
+    q:"目の周りの血流が良くなるとどうなる？",
+    c:["視界がスッキリする","骨が強くなる","脂肪が増える","体温が下がる"],
+    a:0
+  },
+  {
+    q:"アイドレナージュで主に緩める部位は？",
+    c:["目・首・頭皮","腕","足","背中"],
+    a:0
+  },
+  {
+    q:"施術中の理想的な状態は？",
+    c:["リラックス","緊張","興奮","力む"],
+    a:0
+  }
+];
+
+let current = 0;
+let answered = false;
+
+function showQuestion(){
+  answered = false;
+  const q = quiz[current];
+  document.getElementById("question").textContent = q.q;
+  document.getElementById("result").textContent = "";
+
+  const choicesBox = document.getElementById("choices");
+  choicesBox.innerHTML = "";
+
+  q.c.forEach((choice, index) => {
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.textContent = choice;
+    btn.onclick = () => checkAnswer(index);
+    choicesBox.appendChild(btn);
+  });
+}
+
+function checkAnswer(index){
+  if(answered) return;
+  answered = true;
+
+  const q = quiz[current];
+  const buttons = document.querySelectorAll(".choice");
+  const result = document.getElementById("result");
+
+  buttons.forEach((btn, i) => {
+    btn.disabled = true;
+
+    if(i === q.a){
+      btn.classList.add("correct");
+    }
+
+    if(i === index && i !== q.a){
+      btn.classList.add("wrong");
+    }
+  });
+
+  if(index === q.a){
+    result.textContent = "⭕ 正解";
+  } else {
+    result.textContent = "❌ 不正解";
+  }
+}
+
+function nextQuestion(){
+  current++;
+  if(current >= quiz.length){
+    current = 0;
+  }
+  showQuestion();
+}
+
+showQuestion();
+</script>
+
+</body>
+</html>
