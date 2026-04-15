@@ -3,100 +3,41 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>アイドレクイズ</title>
-
+<title>アイドレクイズ 230問版</title>
 <style>
-body{
-  font-family:-apple-system,BlinkMacSystemFont,sans-serif;
-  background:#fff5f7;
-  margin:0;
-  padding:12px;
-  color:#222;
-}
-.box{
-  background:#fff;
-  border-radius:20px;
-  padding:16px;
-  margin-bottom:16px;
-  box-shadow:0 4px 12px rgba(0,0,0,0.06);
-}
-h2{
-  margin:0 0 10px;
-  font-size:22px;
-}
-button{
-  padding:12px;
-  margin:5px 0;
-  border-radius:12px;
-  border:1px solid #ddd;
-  background:#fff;
-  font-size:15px;
-  width:100%;
-}
-.choice{text-align:left}
-.correct{
-  background:#dff7e7 !important;
-  border:3px solid #1f9d55 !important;
-}
-.wrong{
-  background:#ffe1e1 !important;
-  border:3px solid #d93025 !important;
-}
-#q{
-  font-size:20px;
-  font-weight:700;
-  margin:12px 0;
-}
-.badge{
-  background:#ffe4ec;
-  padding:5px 10px;
-  border-radius:999px;
-  font-size:13px;
-}
-.controls{
-  display:flex;
-  gap:6px;
-  flex-wrap:wrap;
-}
-.controls button{
-  width:auto;
-  font-size:13px;
-  padding:8px;
-}
-.active{
-  background:#e8aebd;
-  color:white;
-}
-#result{
-  margin-top:10px;
-  display:none;
-  padding:10px;
-  border-radius:10px;
-}
-.ok{
-  background:#dff7e7;
-}
-.ng{
-  background:#ffe1e1;
-}
+body{font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#fff5f7;padding:12px;color:#222;margin:0}
+.box{background:#fff;border-radius:20px;padding:16px;box-shadow:0 4px 12px rgba(0,0,0,.06);max-width:820px;margin:0 auto 16px}
+h2{margin:0 0 10px;font-size:22px}
+button{padding:12px 14px;margin:4px 0;border-radius:12px;border:1px solid #ddd;background:#fff;font-size:15px}
+.choice{display:block;width:100%;text-align:left}
+.correct{background:#dff7e7!important;border:3px solid #1f9d55!important}
+.wrong{background:#ffe1e1!important;border:3px solid #d93025!important}
+#q{font-size:20px;font-weight:700;margin:12px 0;line-height:1.5}
+#result{font-size:18px;margin:10px 0;display:none;padding:12px;border-radius:14px}
+.result-ok{background:#dff7e7;color:#146c2e;border:2px solid #1f9d55}
+.result-ng{background:#ffe1e1;color:#b42318;border:2px solid #d93025}
+.badge{background:#fff0f4;color:#d46a8a;padding:5px 10px;border-radius:999px;display:inline-block;font-weight:700;font-size:13px}
+.controls{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.active{background:#e8aebd;color:white;border-color:#e8aebd}
+.note,.stat{color:#666;font-size:13px}
+.answer-note{font-size:16px;margin-top:6px}
+.bottom-bar{position:sticky;bottom:0;background:linear-gradient(to top,#fff5f7 65%, rgba(255,245,247,0));padding-top:10px;margin-top:10px}
+#nextBtn{display:block;width:100%;font-size:18px;padding:14px 16px}
+.secondary{font-size:14px;padding:10px 12px}
 </style>
 </head>
-
 <body>
-
 <div class="box">
-<h2>アイドレクイズ</h2>
-
+<h2>アイドレクイズ 230問版</h2>
 <div class="controls">
-<button onclick="setCat('すべて')" class="active">すべて</button>
-<button onclick="setCat('解剖編')">解剖編</button>
-<button onclick="setCat('リンパ編')">リンパ編</button>
-<button onclick="setCat('実践編')">実践編</button>
+<button data-cat="すべて" class="filter active secondary">すべて</button>
+<button data-cat="解剖編" class="filter secondary">解剖編</button>
+<button data-cat="リンパ編" class="filter secondary">リンパ編</button>
+<button data-cat="実践編" class="filter secondary">実践編</button>
+<button id="wrongToggle" class="secondary">間違えた問題だけ</button>
 </div>
-
-<button onclick="wrongOnlyToggle()">間違えた問題だけ</button>
-
-<div id="count"></div>
+<div class="note" id="count"></div>
+<div class="stat" id="score"></div>
 </div>
 
 <div class="box">
@@ -104,114 +45,41 @@ button{
 <div id="q"></div>
 <div id="choices"></div>
 <div id="result"></div>
-<button onclick="next()">次へ</button>
+<div class="bottom-bar">
+<button id="nextBtn">次へ</button>
+</div>
 </div>
 
 <script>
-
 const questions = [
+{"cat":"解剖編","q":"前頭筋の主な作用はどれ？","choices":["前頭部の皮膚を挙上する","下顎骨を挙上する","眼球を内転させる"],"a":"前頭部の皮膚を挙上する"},
+{"cat":"解剖編","q":"眼輪筋の主な作用はどれ？","choices":["まぶたを閉じる","口唇を閉じる","肩甲骨を挙上する"],"a":"まぶたを閉じる"},
+{"cat":"解剖編","q":"咬筋の主な作用はどれ？","choices":["下顎骨を挙上する","上腕骨を外旋する","頭部を回旋する"],"a":"下顎骨を挙上する"},
+{"cat":"解剖編","q":"胸鎖乳突筋の主な作用はどれ？","choices":["頭部を回旋する","上腕骨を内旋する","眼球を外転する"],"a":"頭部を回旋する"},
+{"cat":"解剖編","q":"僧帽筋上部の主な作用はどれ？","choices":["肩甲骨を挙上する","肩甲骨を下制する","上腕骨を外旋する"],"a":"肩甲骨を挙上する"},
+{"cat":"解剖編","q":"斜角筋の主な作用はどれ？","choices":["頸部を側屈させる・肋骨を挙上する","上腕骨を外転する","下顎を挙上する"],"a":"頸部を側屈させる・肋骨を挙上する"},
+{"cat":"解剖編","q":"大円筋の主な作用はどれ？","choices":["上腕骨を内旋・内転する","上腕骨を外旋する","上腕骨を外転する"],"a":"上腕骨を内旋・内転する"},
+{"cat":"解剖編","q":"小円筋の主な作用はどれ？","choices":["上腕骨を外旋する","上腕骨を内旋する","上腕骨を内転する"],"a":"上腕骨を外旋する"},
+{"cat":"解剖編","q":"大胸筋の主な作用はどれ？","choices":["上腕骨を内旋・内転する","上腕骨を外転する","上腕骨を外旋する"],"a":"上腕骨を内旋・内転する"},
+{"cat":"解剖編","q":"上直筋の作用はどれ？","choices":["眼球を上転させる","眼球を下転させる","眼球を外転させる"],"a":"眼球を上転させる"},
+{"cat":"解剖編","q":"下直筋の作用はどれ？","choices":["眼球を下転させる","眼球を上転させる","眼球を内転させる"],"a":"眼球を下転させる"},
+{"cat":"解剖編","q":"外直筋の作用はどれ？","choices":["眼球を外転させる","眼球を内転させる","眼球を上転させる"],"a":"眼球を外転させる"},
+{"cat":"解剖編","q":"内直筋の作用はどれ？","choices":["眼球を内転させる","眼球を外転させる","眼球を下転させる"],"a":"眼球を内転させる"},
+{"cat":"解剖編","q":"上斜筋の作用はどれ？","choices":["眼球を内旋・下転させる","眼球を外旋させる","眼球を上転させる"],"a":"眼球を内旋・下転させる"},
+{"cat":"解剖編","q":"下斜筋の作用はどれ？","choices":["眼球を外旋・上転させる","眼球を内旋させる","眼球を下転させる"],"a":"眼球を外旋・上転させる"},
+{"cat":"解剖編","q":"肩こりと最も関係が深い筋はどれ？","choices":["僧帽筋上部","大腿四頭筋","前脛骨筋"],"a":"僧帽筋上部"},
 
-{cat:"解剖編", q:"前頭筋の主な作用はどれ？", choices:["前頭部を挙上する","下顎骨を挙上する","眼球を内転させる"], a:"前頭部を挙上する"},
-{cat:"解剖編", q:"眼輪筋の主な作用はどれ？", choices:["まぶたを閉じる","口を閉じる","肩を上げる"], a:"まぶたを閉じる"},
-{cat:"解剖編", q:"大円筋の主な作用はどれ？", choices:["上腕骨を内旋・内転する","上腕骨を外旋する","上腕骨を外転する"], a:"上腕骨を内旋・内転する"},
-{cat:"解剖編", q:"小円筋の主な作用はどれ？", choices:["上腕骨を外旋する","上腕骨を内旋する","上腕骨を内転する"], a:"上腕骨を外旋する"},
-{cat:"解剖編", q:"僧帽筋上部の主な作用はどれ？", choices:["肩甲骨を挙上する","肩甲骨を下制する","上腕骨を外旋する"], a:"肩甲骨を挙上する"},
-{cat:"解剖編", q:"胸鎖乳突筋の主な作用はどれ？", choices:["頭部を回旋する","上腕骨を内旋する","眼球を外転する"], a:"頭部を回旋する"},
-{cat:"解剖編", q:"斜角筋の主な作用はどれ？", choices:["頸部を側屈・肋骨挙上","上腕骨を外転","下顎を挙上"], a:"頸部を側屈・肋骨挙上"},
-{cat:"解剖編", q:"外直筋の作用はどれ？", choices:["眼球を外転させる","眼球を内転させる","眼球を上転させる"], a:"眼球を外転させる"},
-{cat:"解剖編", q:"内直筋の作用はどれ？", choices:["眼球を内転させる","眼球を外転させる","眼球を下転させる"], a:"眼球を内転させる"},
-{cat:"解剖編", q:"上直筋の作用はどれ？", choices:["眼球を上転させる","眼球を下転させる","眼球を回旋させる"], a:"眼球を上転させる"},
+{"cat":"リンパ編","q":"顔のリンパが最初に集まる部位はどれか？","choices":["耳前リンパ節","耳後リンパ節","後頭リンパ節"],"a":"耳前リンパ節"},
+{"cat":"リンパ編","q":"後頭部のリンパが流れる部位はどれか？","choices":["後頭リンパ節","耳前リンパ節","下顎リンパ節"],"a":"後頭リンパ節"},
+{"cat":"リンパ編","q":"顎下のリンパが流れる部位はどれか？","choices":["下顎リンパ節","耳前リンパ節","頸部リンパ節"],"a":"下顎リンパ節"},
+{"cat":"リンパ編","q":"顔のリンパの正しい流れはどれか？","choices":["耳前→頸部→静脈角","頸部→耳前→静脈角","耳後→耳前→頸部"],"a":"耳前→頸部→静脈角"},
+{"cat":"リンパ編","q":"後頭部のリンパの流れとして正しいのはどれか？","choices":["後頭→頸部→静脈角","頸部→後頭→静脈角","後頭→耳前→頸部"],"a":"後頭→頸部→静脈角"},
+{"cat":"リンパ編","q":"リンパの流れの方向はどれか？","choices":["末梢→中枢","中枢→末梢","循環のみ"],"a":"末梢→中枢"},
+{"cat":"リンパ編","q":"リンパの最終排出部位はどれか？","choices":["静脈角","頸部リンパ節","耳前リンパ節"],"a":"静脈角"},
+{"cat":"リンパ編","q":"顔のむくみで最も重要な部位はどれか？","choices":["頸部","頬","目"],"a":"頸部"},
+{"cat":"リンパ編","q":"リンパ施術で重要なのはどれか？","choices":["流れ","強さ","スピード"],"a":"流れ"},
+{"cat":"リンパ編","q":"リンパ施術でNGなのはどれか？","choices":["強圧","軽圧","ゆっくり"],"a":"強圧"},
 
-{cat:"リンパ編", q:"リンパの流れはどれ？", choices:["末梢→中枢","中枢→末梢","双方向"], a:"末梢→中枢"},
-{cat:"リンパ編", q:"排出部位はどこ？", choices:["静脈角","耳前","後頭"], a:"静脈角"},
-{cat:"リンパ編", q:"目のむくみの流れはどれ？", choices:["目→耳前→首","首→目→排出","排出→目→首"], a:"目→耳前→首"},
-
-{cat:"実践編", q:"目の奥が重い時どこを見る？", choices:["後頭部","頬","顎"], a:"後頭部"},
-{cat:"実践編", q:"食いしばりで関与する筋は？", choices:["咬筋","前頭筋","眼輪筋"], a:"咬筋"},
-{cat:"実践編", q:"施術でNGなのはどれ？", choices:["強く押す","優しく触れる","流れを見る"], a:"強く押す"},
-
-];
-
-let current;
-let selected="すべて";
-let wrongOnly=false;
-let wrongList=[];
-
-function setCat(cat){
-  selected=cat;
-  next();
-}
-
-function wrongOnlyToggle(){
-  wrongOnly=!wrongOnly;
-  next();
-}
-
-function next(){
-  let pool = selected==="すべて"
-    ? questions
-    : questions.filter(q=>q.cat===selected);
-
-  if(wrongOnly){
-    pool = pool.filter(q=>wrongList.includes(q.q));
-  }
-
-  if(pool.length===0){
-    document.getElementById("q").innerText="問題なし";
-    document.getElementById("choices").innerHTML="";
-    return;
-  }
-
-  current = pool[Math.floor(Math.random()*pool.length)];
-
-  document.getElementById("cat").innerText=current.cat;
-  document.getElementById("q").innerText=current.q;
-  document.getElementById("count").innerText="問題数："+pool.length;
-
-  let html="";
-  current.choices.forEach(c=>{
-    html+=`<button class="choice" onclick="check(this,'${c}')">${c}</button>`;
-  });
-  document.getElementById("choices").innerHTML=html;
-  document.getElementById("result").style.display="none";
-}
-
-function check(btn,choice){
-  let buttons=document.querySelectorAll(".choice");
-  buttons.forEach(b=>b.disabled=true);
-
-  let result=document.getElementById("result");
-  result.style.display="block";
-
-  if(choice===current.a){
-    btn.classList.add("correct");
-    btn.innerText="⭕ 正解："+btn.innerText;
-    result.className="ok";
-    result.innerText="正解";
-    wrongList=wrongList.filter(q=>q!==current.q);
-  }else{
-    btn.classList.add("wrong");
-    btn.innerText="❌ "+btn.innerText;
-
-    buttons.forEach(b=>{
-      if(b.innerText===current.a){
-        b.classList.add("correct");
-        b.innerText="⭕ 正解："+b.innerText;
-      }
-    });
-
-    result.className="ng";
-    result.innerText="不正解 正解："+current.a;
-
-    if(!wrongList.includes(current.q)){
-      wrongList.push(current.q);
-    }
-  }
-}
-
-next();
-
-</script>
-
-</body>
-</html>
+{"cat":"実践編","q":"ペースメーカー装着者への対応はどれか？","choices":["施術不可","軽くなら可能","首のみ可能"],"a":"施術不可"},
+{"cat":"実践編","q":"金属アレルギーの方への対応はどれか？","choices":["施術不可","弱く行う","部分なら可"],"a":"施術不可"},
+{"cat":"実践編","q":"眼科治療中の対応はどれか？","choices":["医師許可が必要","軽くなら可","問題なし"],"a":"
