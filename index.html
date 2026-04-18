@@ -3,137 +3,338 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>アイドレクイズ120問</title>
+<title>♡アイドレクイズ♡</title>
 <style>
-body{font-family:sans-serif;background:#fff5f7;margin:0;padding:12px}
-.box{background:#fff;border-radius:20px;padding:16px;margin-bottom:16px;box-shadow:0 4px 12px rgba(0,0,0,0.06)}
-h1{font-size:22px;margin-bottom:16px}
-#question{font-size:22px;font-weight:700;margin-bottom:16px}
-.choice{display:block;width:100%;padding:14px;margin-bottom:10px;border-radius:14px;border:2px solid #ddd;background:#fff;font-size:16px}
-.choice.correct{background:#dff7e7;border-color:#1f9d55}
-.choice.wrong{background:#ffe1e1;border-color:#d93025}
-#result{font-size:18px;font-weight:700;margin-top:8px}
-.next-btn{width:100%;padding:16px;border-radius:16px;border:none;background:#e8aebd;color:#fff;font-size:20px}
+body{
+  font-family:sans-serif;
+  background:#fff5f7;
+  margin:0;
+  padding:12px;
+}
+.box{
+  background:#fff;
+  border-radius:20px;
+  padding:16px;
+  margin-bottom:16px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.06);
+}
+h1{
+  margin:0 0 14px;
+  font-size:22px;
+}
+.tabs{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.tab{
+  padding:10px 14px;
+  border-radius:14px;
+  border:1px solid #ddd;
+  background:#fff;
+  font-size:15px;
+}
+.tab.active{
+  background:#e8aebd;
+  color:#fff;
+  border-color:#e8aebd;
+}
+.meta{
+  font-size:14px;
+  color:#666;
+  margin-bottom:6px;
+}
+#question{
+  font-size:22px;
+  font-weight:700;
+  line-height:1.5;
+  margin:12px 0 16px;
+}
+.choice{
+  display:block;
+  width:100%;
+  padding:16px;
+  margin-bottom:12px;
+  border-radius:16px;
+  border:2px solid #ddd;
+  background:#fff;
+  font-size:18px;
+}
+.choice.correct{
+  background:#dff7e7;
+  border-color:#1f9d55;
+}
+.choice.wrong{
+  background:#ffe1e1;
+  border-color:#d93025;
+}
+#result{
+  font-size:20px;
+  font-weight:700;
+  margin-top:8px;
+}
+.next-btn{
+  width:100%;
+  padding:16px;
+  border-radius:16px;
+  border:1px solid #ddd;
+  background:#fff;
+  font-size:22px;
+}
+.small{
+  font-size:13px;
+  color:#666;
+}
 </style>
 </head>
 <body>
 
 <div class="box">
-<h1>アイドレクイズ（120問）</h1>
-<div id="question"></div>
-<div id="choices"></div>
-<div id="result"></div>
+  <h1>♡アイドレクイズ♡</h1>
+
+  <div class="tabs">
+    <button class="tab active" onclick="setCategory('解剖', this)">解剖編</button>
+    <button class="tab" onclick="setCategory('リンパ', this)">リンパ編</button>
+    <button class="tab" onclick="setCategory('実践', this)">実践編</button>
+    <button class="tab" id="wrongBtn" onclick="toggleWrongOnly()">間違えた問題だけ</button>
+  </div>
+
+  <div class="meta" id="count"></div>
+  <div class="meta" id="score"></div>
+  <div class="meta" id="streak"></div>
+
+  <div id="question">読み込み中…</div>
+  <div id="choices"></div>
+  <div id="result"></div>
 </div>
 
-<button class="next-btn" onclick="nextQ()">次へ</button>
+<div class="box">
+  <button class="next-btn" onclick="nextQuestion()">次へ</button>
+</div>
 
 <script>
-
 const quiz = [
+  /* 解剖 */
+  {type:"解剖", q:"後頭下筋群の役割は？", c:["頭部の安定と微細運動","腕の運動","呼吸","消化"], a:0},
+  {type:"解剖", q:"後頭下筋群が緊張すると？", c:["頭痛・眼精疲労","腰痛","発熱","腹痛"], a:0},
+  {type:"解剖", q:"眼輪筋の主な作用は？", c:["まぶたを閉じる","腕を上げる","首を回す","呼吸する"], a:0},
+  {type:"解剖", q:"咬筋の主な作用は？", c:["下顎挙上","頭を倒す","肩を上げる","目を動かす"], a:0},
+  {type:"解剖", q:"側頭筋の主な作用は？", c:["咬合補助","呼吸","姿勢維持","排泄"], a:0},
+  {type:"解剖", q:"胸鎖乳突筋の主な作用は？", c:["頭部回旋","腕外転","骨盤回旋","足関節運動"], a:0},
+  {type:"解剖", q:"僧帽筋上部の作用は？", c:["肩甲骨挙上","下制","回旋","固定"], a:0},
+  {type:"解剖", q:"斜角筋の役割は？", c:["呼吸補助","咀嚼","視覚","消化"], a:0},
+  {type:"解剖", q:"広頚筋の作用は？", c:["皮膚を引く","骨を動かす","血液を作る","神経伝達"], a:0},
+  {type:"解剖", q:"外直筋の作用は？", c:["眼球外転","内転","上転","下転"], a:0},
+  {type:"解剖", q:"内直筋の作用は？", c:["眼球内転","外転","回旋","固定"], a:0},
+  {type:"解剖", q:"上直筋の作用は？", c:["上転","下転","外転","内転"], a:0},
+  {type:"解剖", q:"下直筋の作用は？", c:["下転","上転","回旋","固定"], a:0},
+  {type:"解剖", q:"棘上筋の作用は？", c:["外転開始","内旋","外旋","固定"], a:0},
+  {type:"解剖", q:"棘下筋の作用は？", c:["外旋","内旋","挙上","下降"], a:0},
+  {type:"解剖", q:"肩甲下筋の作用は？", c:["内旋","外旋","外転","内転"], a:0},
+  {type:"解剖", q:"大胸筋の作用は？", c:["内転内旋","外転","屈曲","伸展"], a:0},
+  {type:"解剖", q:"小円筋の作用は？", c:["外旋","内旋","外転","内転"], a:0},
+  {type:"解剖", q:"大円筋の作用は？", c:["内旋内転","外旋","外転","固定"], a:0},
+  {type:"解剖", q:"菱形筋の作用は？", c:["肩甲骨内転","外転","挙上","下制"], a:0},
 
-/* 解剖 */
-{q:"後頭下筋群の役割は？",c:["頭部の安定と微細運動","腕の運動","呼吸","消化"],a:0},
-{q:"後頭下筋群が緊張すると？",c:["頭痛・眼精疲労","腰痛","発熱","腹痛"],a:0},
-{q:"眼輪筋の主な作用は？",c:["まぶたを閉じる","腕を上げる","首を回す","呼吸する"],a:0},
-{q:"咬筋の主な作用は？",c:["下顎挙上","頭を倒す","肩を上げる","目を動かす"],a:0},
-{q:"側頭筋の主な作用は？",c:["咬合補助","呼吸","姿勢維持","排泄"],a:0},
-{q:"胸鎖乳突筋の主な作用は？",c:["頭部回旋","腕外転","骨盤回旋","足関節運動"],a:0},
-{q:"僧帽筋上部の作用は？",c:["肩甲骨挙上","下制","回旋","固定"],a:0},
-{q:"斜角筋の役割は？",c:["呼吸補助","咀嚼","視覚","消化"],a:0},
-{q:"広頚筋の作用は？",c:["皮膚を引く","骨を動かす","血液を作る","神経伝達"],a:0},
-{q:"外直筋の作用は？",c:["眼球外転","内転","上転","下転"],a:0},
-{q:"内直筋の作用は？",c:["眼球内転","外転","回旋","固定"],a:0},
-{q:"上直筋の作用は？",c:["上転","下転","外転","内転"],a:0},
-{q:"下直筋の作用は？",c:["下転","上転","回旋","固定"],a:0},
-{q:"棘上筋の作用は？",c:["外転開始","内旋","外旋","固定"],a:0},
-{q:"棘下筋の作用は？",c:["外旋","内旋","挙上","下降"],a:0},
-{q:"肩甲下筋の作用は？",c:["内旋","外旋","外転","内転"],a:0},
-{q:"大胸筋の作用は？",c:["内転内旋","外転","屈曲","伸展"],a:0},
-{q:"小円筋の作用は？",c:["外旋","内旋","外転","内転"],a:0},
-{q:"大円筋の作用は？",c:["内旋内転","外旋","外転","固定"],a:0},
-{q:"菱形筋の作用は？",c:["肩甲骨内転","外転","挙上","下制"],a:0},
+  /* リンパ */
+  {type:"リンパ", q:"リンパの流れは？", c:["末梢→中枢","中枢→末梢","ランダム","停止"], a:0},
+  {type:"リンパ", q:"顔のリンパ最初は？", c:["耳前","足","腹","背中"], a:0},
+  {type:"リンパ", q:"最終出口は？", c:["鎖骨","鼻","目","腰"], a:0},
+  {type:"リンパ", q:"むくみの原因は？", c:["滞り","骨折","筋肥大","皮膚"], a:0},
+  {type:"リンパ", q:"施術順序は？", c:["出口から","顔から","足から","自由"], a:0},
+  {type:"リンパ", q:"リンパの特徴は？", c:["自力弱い","強い","速い","硬い"], a:0},
+  {type:"リンパ", q:"流れを促すには？", c:["やさしい圧","強圧","摩擦","叩く"], a:0},
+  {type:"リンパ", q:"首を無視すると？", c:["流れ悪化","改善","変化なし","硬くなる"], a:0},
+  {type:"リンパ", q:"顔だけ施術すると？", c:["効果低い","最大効果","変化なし","危険"], a:0},
+  {type:"リンパ", q:"リンパの役割は？", c:["排出","吸収","生成","固定"], a:0},
+  {type:"リンパ", q:"むくみ改善の鍵は？", c:["排出確保","筋肥大","骨矯正","皮膚"], a:0},
+  {type:"リンパ", q:"摩擦は？", c:["NG","OK","必要","強化"], a:0},
+  {type:"リンパ", q:"施術スピードは？", c:["ゆっくり","速く","一定","自由"], a:0},
+  {type:"リンパ", q:"流れが整うと？", c:["軽さ","重さ","痛み","違和感"], a:0},
+  {type:"リンパ", q:"リンパ施術の本質は？", c:["流れ","圧","スピード","刺激"], a:0},
+  {type:"リンパ", q:"顔のむくみ改善で最初に意識する部位は？", c:["首","頬","目の周り","こめかみ"], a:0},
+  {type:"リンパ", q:"出口が詰まるとどうなる？", c:["流れが滞る","流れが速くなる","骨が動く","筋肉が増える"], a:0},
+  {type:"リンパ", q:"リンパ施術で重要なのは？", c:["順序","力","速さ","回数"], a:0},
 
-/* リンパ */
-{q:"リンパの流れは？",c:["末梢→中枢","中枢→末梢","ランダム","停止"],a:0},
-{q:"顔のリンパ最初は？",c:["耳前","足","腹","背中"],a:0},
-{q:"最終出口は？",c:["鎖骨","鼻","目","腰"],a:0},
-{q:"むくみの原因は？",c:["滞り","骨折","筋肥大","皮膚"],a:0},
-{q:"施術順序は？",c:["出口から","顔から","足から","自由"],a:0},
-{q:"リンパの特徴は？",c:["自力弱い","強い","速い","硬い"],a:0},
-{q:"流れを促すには？",c:["やさしい圧","強圧","摩擦","叩く"],a:0},
-{q:"首を無視すると？",c:["流れ悪化","改善","変化なし","硬くなる"],a:0},
-{q:"顔だけ施術すると？",c:["効果低い","最大効果","変化なし","危険"],a:0},
-{q:"リンパの役割は？",c:["排出","吸収","生成","固定"],a:0},
-{q:"むくみ改善の鍵は？",c:["排出確保","筋肥大","骨矯正","皮膚"],a:0},
-{q:"摩擦は？",c:["NG","OK","必要","強化"],a:0},
-{q:"施術スピードは？",c:["ゆっくり","速く","一定","自由"],a:0},
-{q:"流れが整うと？",c:["軽さ","重さ","痛み","違和感"],a:0},
-{q:"リンパ施術の本質は？",c:["流れ","圧","スピード","刺激"],a:0},
-
-/* 実践 */
-{q:"目の疲れで最優先は？",c:["後頭部","腕","足","腹"],a:0},
-{q:"むくみ改善で重要は？",c:["首","足","腕","腹"],a:0},
-{q:"頭痛対応は？",c:["後頭部","膝","足首","肩"],a:0},
-{q:"食いしばり対応は？",c:["咬筋","腹筋","大腿筋","腓腹筋"],a:0},
-{q:"こめかみの張りは？",c:["側頭筋","僧帽筋","広背筋","腸腰筋"],a:0},
-{q:"首こりは？",c:["僧帽筋","大胸筋","腹直筋","大殿筋"],a:0},
-{q:"呼吸浅い時は？",c:["斜角筋","腕","足","顔"],a:0},
-{q:"施術前にやるのは？",c:["首","顔","足","腕"],a:0},
-{q:"基本順序は？",c:["首→顔","顔→首","自由","逆順"],a:0},
-{q:"強圧は？",c:["NG","OK","推奨","必須"],a:0},
-{q:"施術で重要は？",c:["流れ","力","速さ","回数"],a:0},
-{q:"顔左右差の原因は？",c:["首の緊張","骨折","皮膚","血液"],a:0},
-{q:"視界ぼやけは？",c:["血流低下","筋肥大","骨折","皮膚"],a:0},
-{q:"首硬いと？",c:["頭痛","改善","軽くなる","変化なし"],a:0},
-{q:"施術のゴールは？",c:["軽さ","重さ","痛み","刺激"],a:0},
-{q:"禁忌で重要は？",c:["安全","強さ","速度","時間"],a:0},
-{q:"ペースメーカーは？",c:["不可","可","推奨","条件なし"],a:0},
-{q:"金属アレルギーは？",c:["不可","可","強く","無視"],a:0},
-{q:"体調不良時は？",c:["施術しない","強くする","長くする","無視"],a:0},
-{q:"結果を出す条件は？",c:["正しい流れ","強圧","速さ","回数"],a:0}
+  /* 実践 */
+  {type:"実践", q:"目の疲れで最優先は？", c:["後頭部","腕","足","腹"], a:0},
+  {type:"実践", q:"むくみ改善で重要は？", c:["首","足","腕","腹"], a:0},
+  {type:"実践", q:"頭痛対応は？", c:["後頭部","膝","足首","肩"], a:0},
+  {type:"実践", q:"食いしばり対応は？", c:["咬筋","腹筋","大腿筋","腓腹筋"], a:0},
+  {type:"実践", q:"こめかみの張りは？", c:["側頭筋","僧帽筋","広背筋","腸腰筋"], a:0},
+  {type:"実践", q:"首こりは？", c:["僧帽筋","大胸筋","腹直筋","大殿筋"], a:0},
+  {type:"実践", q:"呼吸浅い時は？", c:["斜角筋","腕","足","顔"], a:0},
+  {type:"実践", q:"施術前にやるのは？", c:["首","顔","足","腕"], a:0},
+  {type:"実践", q:"基本順序は？", c:["首→顔","顔→首","自由","逆順"], a:0},
+  {type:"実践", q:"強圧は？", c:["NG","OK","推奨","必須"], a:0},
+  {type:"実践", q:"施術で重要は？", c:["流れ","力","速さ","回数"], a:0},
+  {type:"実践", q:"顔左右差の原因は？", c:["首の緊張","骨折","皮膚","血液"], a:0},
+  {type:"実践", q:"視界ぼやけは？", c:["血流低下","筋肥大","骨折","皮膚"], a:0},
+  {type:"実践", q:"首硬いと？", c:["頭痛","改善","軽くなる","変化なし"], a:0},
+  {type:"実践", q:"施術のゴールは？", c:["軽さ","重さ","痛み","刺激"], a:0},
+  {type:"実践", q:"禁忌で重要は？", c:["安全","強さ","速度","時間"], a:0},
+  {type:"実践", q:"ペースメーカーは？", c:["不可","可","推奨","条件なし"], a:0},
+  {type:"実践", q:"金属アレルギーは？", c:["不可","可","強く","無視"], a:0},
+  {type:"実践", q:"体調不良時は？", c:["施術しない","強くする","長くする","無視"], a:0},
+  {type:"実践", q:"結果を出す条件は？", c:["正しい流れ","強圧","速さ","回数"], a:0},
+  {type:"実践", q:"目の奥の重さがある時に優先して見るのは？", c:["後頭部","足首","前腕","腹部"], a:0},
+  {type:"実践", q:"顔だけを先に流すと？", c:["効果が出にくい","効果が最大になる","関係ない","刺激が増える"], a:0}
 ];
 
-let i=0;
-let answered=false;
+let currentCategory = "解剖";
+let currentList = [];
+let currentIndex = 0;
+let answered = false;
+let wrongOnly = false;
+let wrongList = JSON.parse(localStorage.getItem("aidore_wrong_only_list") || "[]");
+let score = JSON.parse(localStorage.getItem("aidore_score_data") || '{"ok":0,"ng":0,"streak":0,"best":0}');
 
-function show(){
-answered=false;
-let q=quiz[i];
-document.getElementById("question").textContent=(i+1)+"問目："+q.q;
-document.getElementById("result").textContent="";
-let box=document.getElementById("choices");
-box.innerHTML="";
-q.c.forEach((c,index)=>{
-let b=document.createElement("button");
-b.className="choice";
-b.textContent=c;
-b.onclick=()=>check(index);
-box.appendChild(b);
-});
+function saveState(){
+  localStorage.setItem("aidore_wrong_only_list", JSON.stringify(wrongList));
+  localStorage.setItem("aidore_score_data", JSON.stringify(score));
 }
 
-function check(index){
-if(answered)return;
-answered=true;
-let q=quiz[i];
-let btns=document.querySelectorAll(".choice");
-btns.forEach((b,n)=>{
-b.disabled=true;
-if(n===q.a)b.classList.add("correct");
-if(n===index && n!==q.a)b.classList.add("wrong");
-});
-document.getElementById("result").textContent =
-(index===q.a)?"⭕ 正解":"❌ 不正解";
+function shuffle(array){
+  const arr = [...array];
+  for(let i = arr.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
 }
 
-function nextQ(){
-i++;
-if(i>=quiz.length)i=0;
-show();
+function getCategoryList(type){
+  let data = quiz.filter(item => item.type === type);
+  if(wrongOnly){
+    data = data.filter(item => wrongList.includes(item.q));
+  }
+  return shuffle(data);
 }
 
-show();
+function updateMeta(){
+  document.getElementById("count").textContent =
+    currentCategory + " " + (currentList.length === 0 ? 0 : currentIndex + 1) + " / " + currentList.length;
+  document.getElementById("score").textContent =
+    "正解 " + score.ok + " / 不正解 " + score.ng + " / 最高連続正解 " + score.best;
+  document.getElementById("streak").textContent =
+    "連続正解 " + score.streak;
+}
 
+function setCategory(type, btn){
+  currentCategory = type;
+  currentIndex = 0;
+  answered = false;
+  currentList = getCategoryList(type);
+
+  document.querySelectorAll(".tab").forEach(tab => tab.classList.remove("active"));
+  btn.classList.add("active");
+  if(wrongOnly){
+    document.getElementById("wrongBtn").classList.add("active");
+  }
+
+  showQuestion();
+}
+
+function toggleWrongOnly(){
+  wrongOnly = !wrongOnly;
+  const wrongBtn = document.getElementById("wrongBtn");
+  wrongBtn.classList.toggle("active", wrongOnly);
+
+  currentIndex = 0;
+  currentList = getCategoryList(currentCategory);
+  showQuestion();
+}
+
+function showQuestion(){
+  answered = false;
+  currentList = getCategoryList(currentCategory);
+
+  if(currentList.length === 0){
+    updateMeta();
+    document.getElementById("question").textContent = "この条件の問題はありません";
+    document.getElementById("choices").innerHTML = "";
+    document.getElementById("result").textContent = "";
+    return;
+  }
+
+  if(currentIndex >= currentList.length){
+    currentIndex = 0;
+  }
+
+  const q = currentList[currentIndex];
+  updateMeta();
+  document.getElementById("question").textContent = q.q;
+  document.getElementById("result").textContent = "";
+
+  let choices = q.c.map((text, index) => ({
+    text: text,
+    correct: index === q.a
+  }));
+  choices = shuffle(choices);
+
+  const choicesBox = document.getElementById("choices");
+  choicesBox.innerHTML = "";
+
+  choices.forEach(choice => {
+    const btn = document.createElement("button");
+    btn.className = "choice";
+    btn.textContent = choice.text;
+    btn.onclick = () => checkAnswer(choice.correct, btn, choices);
+    choicesBox.appendChild(btn);
+  });
+}
+
+function checkAnswer(correct, clickedBtn){
+  if(answered) return;
+  answered = true;
+
+  const q = currentList[currentIndex];
+  const buttons = document.querySelectorAll(".choice");
+  const result = document.getElementById("result");
+
+  buttons.forEach(btn => btn.disabled = true);
+
+  if(correct){
+    clickedBtn.classList.add("correct");
+    result.textContent = "⭕ 正解";
+    score.ok += 1;
+    score.streak += 1;
+    if(score.streak > score.best){
+      score.best = score.streak;
+    }
+    wrongList = wrongList.filter(item => item !== q.q);
+  }else{
+    clickedBtn.classList.add("wrong");
+    buttons.forEach(btn => {
+      if(btn.textContent === q.c[q.a]){
+        btn.classList.add("correct");
+      }
+    });
+    result.textContent = "❌ 不正解";
+    score.ng += 1;
+    score.streak = 0;
+    if(!wrongList.includes(q.q)){
+      wrongList.push(q.q);
+    }
+  }
+
+  saveState();
+  updateMeta();
+}
+
+function nextQuestion(){
+  currentIndex++;
+  currentList = getCategoryList(currentCategory);
+  if(currentIndex >= currentList.length){
+    currentIndex = 0;
+  }
+  showQuestion();
+}
+
+currentList = getCategoryList(currentCategory);
+showQuestion();
 </script>
+
 </body>
 </html>
