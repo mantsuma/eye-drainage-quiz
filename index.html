@@ -85,6 +85,21 @@ h1{
   color:#fff;
   font-size:20px;
 }
+  #result{
+  font-size:18px;
+  font-weight:700;
+  margin-top:8px;
+  white-space:pre-line;
+  line-height:1.6;
+}
+
+.explain-label{
+  display:inline-block;
+  margin-top:8px;
+  font-size:14px;
+  font-weight:700;
+  color:#666;
+}
 </style>
 </head>
 <body>
@@ -112,7 +127,8 @@ h1{
 <div class="box">
   <button class="next-btn" onclick="nextQ()">次へ</button>
 </div>
-
+<button onclick="resetData()" class="reset">リセット</button>
+  
 <script>
 const quiz = [
 
@@ -330,7 +346,10 @@ function answer(correct, clickedBtn, q, correctText){
 
   if(correct){
     clickedBtn.classList.add("correct");
-    document.getElementById("result").textContent = "⭕ 正解\n" + q.exp;
+    document.getElementById("result").innerHTML =
+  "<span style='color:#e86b8a'>⭕ 正解</span><br>" +
+  "<span class='explain-label'>解説</span><br>" +
+  q.exp;
     score.ok++;
     score.streak++;
     if(score.streak > score.best) score.best = score.streak;
@@ -342,7 +361,10 @@ function answer(correct, clickedBtn, q, correctText){
         b.classList.add("correct");
       }
     });
-    document.getElementById("result").textContent = "❌ 不正解\n" + q.exp;
+    document.getElementById("result").innerHTML =
+  "<span style='color:#555'>❌ 不正解（復習に保存）</span><br>" +
+  "<span class='explain-label'>解説</span><br>" +
+  q.exp;
     score.ng++;
     score.streak = 0;
     if(!wrong.includes(q.q)) wrong.push(q.q);
@@ -359,6 +381,20 @@ function nextQ(){
 
 list = getList();
 show();
+  function resetData(){
+  if(confirm("成績と間違いデータをリセットしますか？")){
+    
+    localStorage.removeItem("aidore_wrong_all");
+    localStorage.removeItem("aidore_score_all");
+    
+    wrong = [];
+    score = { ok:0, ng:0, streak:0, best:0 };
+    
+    alert("リセットしました！");
+    
+    location.reload();
+  }
+}
 </script>
 
 
