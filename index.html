@@ -100,6 +100,16 @@ h1{
   font-weight:700;
   color:#666;
 }
+  .reset{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:none;
+  background:#eee;
+  color:#555;
+  font-size:16px;
+  margin-top:10px;
+}
 </style>
 </head>
 <body>
@@ -126,9 +136,8 @@ h1{
 
 <div class="box">
   <button class="next-btn" onclick="nextQ()">次へ</button>
+  <button onclick="resetData()" class="reset">リセット</button>
 </div>
-<button onclick="resetData()" class="reset">リセット</button>
-  
 <script>
 const quiz = [
 
